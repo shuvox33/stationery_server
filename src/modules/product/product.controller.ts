@@ -7,33 +7,56 @@ const createProduct = async (req: Request, res: Response) => {
     const result = await ProductService.createProductToDB(data);
 
     return res.status(200).json({
-      status: 'success',
+      status: 'true',
       message: 'Product created successfully',
       data: result,
     });
   } catch (error) {
     // console.log(error);
     res.status(500).json({
-      status: 'error',
+      success: false,
       message: 'Validation failed',
       error: error,
     });
   }
 };
 
+// const getAllProducts = async (req: Request, res: Response) => {
+//   try {
+//     const result = await ProductService.getAllProductsFromDB();
+
+//     return res.status(200).json({
+//       status: 'success',
+//       message: 'Products retrieved successfully',
+//       data: result,
+//     });
+//   } catch (error) {
+//     // console.log(error);
+//     res.status(500).json({
+//       status: 'error',
+//       message: 'Failed to get products',
+//       error: error,
+//     });
+//   }
+// };
+
+// get all products :
 const getAllProducts = async (req: Request, res: Response) => {
   try {
-    const result = await ProductService.getAllProductsFromDB();
+    const { searchTerm } = req.query;
+    const result = await ProductService.getAllProductsFromDB(
+      searchTerm as string,
+    );
 
     return res.status(200).json({
-      status: 'success',
+      status: 'true',
       message: 'Products retrieved successfully',
       data: result,
     });
   } catch (error) {
-    // console.log(error);
+    console.log(error);
     res.status(500).json({
-      status: 'error',
+      success: false,
       message: 'Failed to get products',
       error: error,
     });
@@ -53,7 +76,7 @@ const getSingleProduct = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      status: 'error',
+      success: false,
       message: 'Failed to get product',
       error: error,
     });
@@ -76,7 +99,7 @@ const updateProduct = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      status: 'error',
+      success: false,
       message: 'Failed to update product',
       error: error,
     });
@@ -97,7 +120,7 @@ const deletedProduct = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      status: 'error',
+      success: false,
       message: 'Failed to delete product',
       error: error,
     });

@@ -9,7 +9,6 @@ router.post('/', ProductController.createProduct as RequestHandler);
 router.get('/', ProductController.getAllProducts as RequestHandler);
 // get single product :
 router.get('/:productId', ProductController.getSingleProduct as RequestHandler);
-
 // update product :
 router.put('/:productId', ProductController.updateProduct as RequestHandler);
 

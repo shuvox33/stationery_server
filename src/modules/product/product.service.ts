@@ -1,24 +1,41 @@
 import { IProduct } from './product.model';
 import { Product } from './product.schema';
 
+//TODO-1 : create product ------- :
 const createProductToDB = async (product: IProduct) => {
   const createdProduct = await Product.create(product);
-
   return createdProduct;
 };
 
-const getAllProductsFromDB = async () => {
-  const products = await Product.find();
-  return products;
+//TODO-2 : get all products ------- :
+// const getAllProductsFromDB = async () => {
+//   const products = await Product.find();
+//   return products;
+// };
+
+const getAllProductsFromDB = async (searchTerm?: string) => {
+  let searchFilter = {};
+
+  if (searchTerm) {
+    searchFilter = {
+      $or: [
+        { name: { $regex: searchTerm, $options: 'i' } },
+        { brand: { $regex: searchTerm, $options: 'i' } },
+        { category: { $regex: searchTerm, $options: 'i' } },
+      ],
+    };
+  }
+  const result = await Product.find(searchFilter);
+  return result;
 };
 
-// get single product by id :
+//TODO-3 : get single product by id ------- :
 const getSingleProductById = async (id: string) => {
   const product = await Product.findById(id);
   return product;
 };
 
-// update product :
+//TODO-4 : update product ------- :
 const updateProductById = async (id: string, payload: Partial<IProduct>) => {
   const updatedProduct = await Product.findByIdAndUpdate(id, payload, {
     new: true,
@@ -28,7 +45,7 @@ const updateProductById = async (id: string, payload: Partial<IProduct>) => {
   return updatedProduct;
 };
 
-// delete product :
+//TODO-5 : delete product :
 const deleteProductById = async (id: string) => {
   const deletedProduct = await Product.findByIdAndDelete(id);
   return deletedProduct;
