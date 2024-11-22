@@ -5,18 +5,24 @@ const productSchema = new Schema<IProduct>(
   {
     name: {
       type: String,
-      required: [true, 'Name is required'],
+      required: true, 
       trim: true,
+      message: 'Name is required',
     },
     brand: {
       type: String,
-      required: [true, 'Brand is required'],
+      required: true,  
       trim: true,
+      message: 'Brand is required',
     },
     price: {
       type: Number,
-      required: [true, 'Price must be a positive number'],
+      required: true,
       min: 0,
+      validate: {
+        validator: (v: number) => v > 0,
+        message: 'Price must be a positive number',
+      },
     },
     category: {
       type: String,
@@ -27,19 +33,22 @@ const productSchema = new Schema<IProduct>(
         'Educational',
         'Technology',
       ],
-      required: [true, 'Category is required'],
+      required: true,
+      message: 'Category is required',
     },
     description: {
       type: String,
     },
     quantity: {
       type: Number,
-      required: [true, 'Quantity must be a positive number'],
+      required: true,
       min: 0,
+      message: 'Quantity must be a positive number',
     },
     inStock: {
       type: Boolean,
-      required: [true, 'In stock is required'],
+      required: true,
+      message: 'In stock is required',
     },
     image: {
       type: String,
@@ -48,4 +57,4 @@ const productSchema = new Schema<IProduct>(
   { timestamps: true },
 );
 
-export const ProductModel = model<IProduct>('Product', productSchema);
+export const Product = model<IProduct>('Product', productSchema);
