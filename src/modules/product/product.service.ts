@@ -25,18 +25,13 @@ const updateProductById = async (id: string, payload: Partial<IProduct>) => {
     runValidators: true,
     updatedAt: new Date(),
   });
-  console.log('updatedProduct', updatedProduct);
   return updatedProduct;
 };
 
 // delete product :
 const deleteProductById = async (id: string) => {
-  try {
-    const deletedProduct = await Product.findByIdAndDelete(id);
-    return deletedProduct;
-  } catch (error) {
-    console.log(error);
-  }
+  const deletedProduct = await Product.findByIdAndDelete(id);
+  return deletedProduct;
 };
 
 export const ProductService = {
