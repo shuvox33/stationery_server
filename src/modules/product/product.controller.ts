@@ -21,26 +21,7 @@ const createProduct = async (req: Request, res: Response) => {
   }
 };
 
-// const getAllProducts = async (req: Request, res: Response) => {
-//   try {
-//     const result = await ProductService.getAllProductsFromDB();
-
-//     return res.status(200).json({
-//       status: 'success',
-//       message: 'Products retrieved successfully',
-//       data: result,
-//     });
-//   } catch (error) {
-//     // console.log(error);
-//     res.status(500).json({
-//       status: 'error',
-//       message: 'Failed to get products',
-//       error: error,
-//     });
-//   }
-// };
-
-// get all products :
+// get all products by search term  :
 const getAllProducts = async (req: Request, res: Response) => {
   try {
     const { searchTerm } = req.query;

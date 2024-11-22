@@ -7,12 +7,7 @@ const createProductToDB = async (product: IProduct) => {
   return createdProduct;
 };
 
-//TODO-2 : get all products ------- :
-// const getAllProductsFromDB = async () => {
-//   const products = await Product.find();
-//   return products;
-// };
-
+//TODO-2 : get all products by search term ------- :
 const getAllProductsFromDB = async (searchTerm?: string) => {
   let searchFilter = {};
 
