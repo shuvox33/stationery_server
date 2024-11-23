@@ -1,22 +1,29 @@
 import { model, Schema } from 'mongoose';
 import { IOrder } from './order.model';
 
-const orderSchema = new Schema<IOrder>({
-  email: {
-    type: String,
-    required: true,
-    trim: true,
-    message: 'Email is required',
+const orderSchema = new Schema<IOrder>(
+  {
+    email: {
+      type: String,
+      required: true,
+      trim: true,
+      message: 'Email is required',
+    },
+    product: {
+      type: Object,
+      required: true,
+      ref: 'Product',
+    },
+    quantity: {
+      type: Number,
+      required: true,
+    },
+    totalPrice: {
+      type: Number,
+      required: true,
+    },
   },
-  product: {
-    type: Object,
-    required: true,
-    ref: 'Product',
-  },
-  quantity: {
-    type: Number,
-    required: true,
-  },
-});
+  { timestamps: true },
+);
 
 export const Order = model<IOrder>('Order', orderSchema);
