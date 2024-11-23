@@ -7,7 +7,7 @@ const createProduct = async (req: Request, res: Response) => {
     const result = await ProductService.createProductToDB(data);
 
     return res.status(200).json({
-      status: 'true',
+      success: true,
       message: 'Product created successfully',
       data: result,
     });
@@ -30,14 +30,13 @@ const getAllProducts = async (req: Request, res: Response) => {
     );
 
     return res.status(200).json({
-      status: 'true',
+      status: true,
       message: 'Products retrieved successfully',
       data: result,
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
-      success: false,
+      status: false,
       message: 'Failed to get products',
       error: error,
     });
@@ -50,14 +49,13 @@ const getSingleProduct = async (req: Request, res: Response) => {
     const result = await ProductService.getSingleProductById(productId);
 
     return res.status(200).json({
-      status: 'success',
+      status: 'true',
       message: 'Product retrieved successfully',
       data: result,
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
-      success: false,
+      status: false,
       message: 'Failed to get product',
       error: error,
     });
@@ -73,14 +71,13 @@ const updateProduct = async (req: Request, res: Response) => {
     const result = await ProductService.updateProductById(productId, data);
 
     return res.status(200).json({
-      status: 'success',
+      status: 'true',
       message: 'Product updated successfully',
       data: result,
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
-      success: false,
+      status: false,
       message: 'Failed to update product',
       error: error,
     });
@@ -99,9 +96,8 @@ const deletedProduct = async (req: Request, res: Response) => {
       data: {},
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
-      success: false,
+      status: false,
       message: 'Failed to delete product',
       error: error,
     });
