@@ -45,6 +45,34 @@ const createOrderToDB = async (orderData: IOrder, res: Response) => {
   return order;
 };
 
+// get total revenue from db : 
+const getRevinueFromDB = async () => {
+  const result = await Order.aggregate([
+    {
+      $lookup: {
+        from: 'products',
+        localField: 'product',
+        foreignField: '_id',
+        as: 'productDetails',
+      },
+    },
+    {
+      $unwind: '$productDetails',
+    },
+    {
+      $group: {
+        _id: null,
+        totalRevenue: {
+          $sum: { $multiply: ['$quantity', '$productDetails.price'] },
+        },
+      },
+    },
+    { $project: { _id: 0, totalRevenue: 1 } },
+  ]);
+  return result;
+};
+
 export const OrderService = {
   createOrderToDB,
+  getRevinueFromDB,
 };
