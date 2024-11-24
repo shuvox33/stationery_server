@@ -7,14 +7,6 @@ const createOrderToDB = async (orderData: IOrder, res: Response) => {
   const { email, product, quantity, totalPrice } = orderData;
   const foundProduct = await Product.findById(product);
 
-  //! check if product is available or not to create order this error is not fixed yet
-  if (!foundProduct) {
-    return res.status(400).json({
-      status: 'false',
-      message: 'Product not found',
-    });
-  }
-
   // check if product is available or not
   if (!foundProduct?.inStock || foundProduct?.quantity < quantity) {
     return res.status(400).json({
@@ -45,7 +37,7 @@ const createOrderToDB = async (orderData: IOrder, res: Response) => {
   return order;
 };
 
-// get total revenue from db : 
+// get total revenue from db :
 const getRevinueFromDB = async () => {
   const result = await Order.aggregate([
     {

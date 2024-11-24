@@ -12,15 +12,15 @@ const createOrder = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({
       status: 'false',
       message: 'Internal server error',
+      error: error,
     });
   }
 };
 
-// get total revenue from db : 
+// get total revenue from db :
 const getRevinue = async (req: Request, res: Response) => {
   try {
     const result = await OrderService.getRevinueFromDB();
@@ -31,10 +31,10 @@ const getRevinue = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({
       status: 'false',
       message: 'Internal server error',
+      error: error,
     });
   }
 };

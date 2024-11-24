@@ -18,7 +18,6 @@ app.use(cors(corsOptions));
 
 //routes
 app.use('/api/products', ProductRoute);
-// order route
 app.use('/api/orders', OrderRoute);
 
 
