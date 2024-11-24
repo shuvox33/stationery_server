@@ -5,7 +5,15 @@ import { Response } from 'express';
 
 const createOrderToDB = async (orderData: IOrder, res: Response) => {
   const { email, product, quantity, totalPrice } = orderData;
+
   const foundProduct = await Product.findById(product);
+
+  if (!foundProduct) {
+    return res.status(404).json({
+      status: 'false',
+      message: 'Product not found',
+    });
+  }
 
   // check if product is available or not
   if (!foundProduct?.inStock || foundProduct?.quantity < quantity) {

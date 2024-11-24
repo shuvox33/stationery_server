@@ -12,7 +12,6 @@ const createProduct = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    // console.log(error);
     res.status(500).json({
       success: false,
       message: 'Validation failed',
@@ -43,6 +42,7 @@ const getAllProducts = async (req: Request, res: Response) => {
   }
 };
 
+// get single product by id :
 const getSingleProduct = async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
