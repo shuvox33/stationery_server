@@ -1,5 +1,6 @@
 import { model, Schema } from 'mongoose';
 import { IOrder } from './order.model';
+import validator from 'validator';
 
 const orderSchema = new Schema<IOrder>(
   {
@@ -8,6 +9,10 @@ const orderSchema = new Schema<IOrder>(
       required: true,
       trim: true,
       message: 'Email is required',
+      validate: {
+        validator: (v: string) => validator.isEmail(v),
+        message: 'Invalid email address',
+      },
     },
     product: {
       type: Object,

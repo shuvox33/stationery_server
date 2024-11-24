@@ -18,8 +18,15 @@ const createOrderToDB = async (orderData: IOrder, res: Response) => {
   // update product quantity
   await Product.findByIdAndUpdate(foundProduct._id, {
     $inc: { quantity: -quantity },
-    $set: { inStock: false },
   });
+
+  // update product inStock status
+  const updatedProduct = await Product.findById(foundProduct._id);
+  if (updatedProduct?.quantity === 0) {
+    await Product.findByIdAndUpdate(foundProduct._id, {
+      $set: { inStock: false },
+    });
+  }
 
   await foundProduct.save();
 
