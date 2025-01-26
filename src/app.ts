@@ -1,7 +1,6 @@
 import cors from 'cors';
 import express, { Application, Request, Response } from 'express';
-import { ProductRoute } from './modules/product/product.route';
-import { OrderRoute } from './modules/order/order.route';
+import router from './router';
 const app: Application = express();
 
 // parser -->
@@ -17,9 +16,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 //routes
-app.use('/api/products', ProductRoute);
-app.use('/api/orders', OrderRoute);
-
+app.use('/api', router);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('This api is working');
