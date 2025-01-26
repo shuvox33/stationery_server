@@ -1,7 +1,9 @@
 import cors from 'cors';
-import express, { Application, Request, Response } from 'express';
+import express, { Application, Request, RequestHandler, Response } from 'express';
 import router from './router';
 import cookieParser from 'cookie-parser';
+import globalErrorHandler from './middleware/globalErrorHandler';
+import notFound from './middleware/notFound';
 const app: Application = express();
 
 // parser -->
@@ -23,5 +25,8 @@ app.use('/api', router);
 app.get('/', (req: Request, res: Response) => {
   res.send('This api is working');
 });
+
+app.use(globalErrorHandler as unknown as RequestHandler)
+app.use(notFound as unknown as RequestHandler)
 
 export default app;
