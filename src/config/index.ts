@@ -5,4 +5,7 @@ dotenv.config();
 export default {
   port: process.env.PORT,
   Mongodb_url: process.env.MONGO_DATABASE_URL,
+  bcryptSaltRounds: process.env.BCRYPT_SALT_ROUNDS,
+  jwtAccessTokenSecret: process.env.JWT_ACCESS_TOKEN_SECRET,
+  jwtAccessTokenExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN,
 };
