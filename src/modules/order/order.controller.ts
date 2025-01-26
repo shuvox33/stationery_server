@@ -1,43 +1,31 @@
-import { Request, Response } from 'express';
 import { OrderService } from './order.service';
+import catchAsync from '../../utils/catchAsync';
+import sendResponse from '../../utils/sendResponse';
+import { StatusCodes } from 'http-status-codes';
 
-const createOrder = async (req: Request, res: Response) => {
-  try {
-    const orderData = req.body;
-    const result = await OrderService.createOrderToDB(orderData, res);
+const createOrder = catchAsync(async (req, res) => {
+  const orderData = req.body;
+  const result = await OrderService.createOrderToDB(orderData, res);
 
-    return res.status(200).json({
-      status: 'true',
-      message: 'Order created successfully',
-      data: result,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      status: 'false',
-      message: 'Internal server error',
-      error: error,
-    });
-  }
-};
+  sendResponse(res, {
+    statusCode: StatusCodes.CREATED,
+    success: true,
+    message: 'Order created successfully',
+    data: result,
+  });
+});
 
 // get total revenue from db :
-const getRevinue = async (req: Request, res: Response) => {
-  try {
-    const result = await OrderService.getRevinueFromDB();
+const getRevinue = catchAsync(async (req, res) => {
+  const result = await OrderService.getRevinueFromDB();
 
-    return res.status(200).json({
-      status: 'true',
-      message: 'Revenue calculated successfully',
-      data: result,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      status: 'false',
-      message: 'Internal server error',
-      error: error,
-    });
-  }
-};
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Revenue calculated successfully',
+    data: result,
+  });
+});
 
 export const OrderController = {
   createOrder,

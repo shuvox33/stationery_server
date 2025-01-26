@@ -1,6 +1,8 @@
+import { Types } from "mongoose";
+
 export type IOrder = {
   email: string;
-  product: object;
+  product: Types.ObjectId | string;
   quantity: number;
   totalPrice: number;
 };

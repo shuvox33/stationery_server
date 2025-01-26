@@ -1,3 +1,4 @@
+
 import { IProduct } from './product.model';
 import { Product } from './product.schema';
 
@@ -19,6 +20,8 @@ const getAllProductsFromDB = async (searchTerm?: string) => {
         { category: { $regex: searchTerm, $options: 'i' } },
       ],
     };
+  }else{
+    searchFilter = {};
   }
   const result = await Product.find(searchFilter);
   return result;
