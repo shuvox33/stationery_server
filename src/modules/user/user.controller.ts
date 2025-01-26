@@ -1,4 +1,3 @@
-
 import { StatusCodes } from 'http-status-codes';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
@@ -17,11 +16,32 @@ const createUser = catchAsync(async (req, res) => {
       email: result.email,
     },
   });
-  
+});
+
+const getAllUser = catchAsync(async (req, res) => {
+  const result = await UserService.getAllUserFromDB();
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'All users fetched successfully',
+    data: result,
+  });
+});
+
+const getSingleUser = catchAsync(async (req, res) => {
+  const result = await UserService.getSingleUserFromDB(req.params.id);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'User fetched successfully',
+    data: result,
+  });
 });
 
 export const UserControllers = {
   createUser,
-//   getAllUser,
-//   getSingleUser,
+  getAllUser,
+  getSingleUser,
 };
