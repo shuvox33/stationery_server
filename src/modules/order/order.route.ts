@@ -16,4 +16,10 @@ router.get(
   OrderController.getRevinue as Application,
 );
 
+router.get(
+  '/',
+  auth(USER_ROLES.admin, USER_ROLES.user),
+  OrderController.getAllOrders as Application,
+);
+
 export const OrderRoute = router;

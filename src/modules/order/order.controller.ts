@@ -28,7 +28,24 @@ const getRevinue = catchAsync(async (req, res) => {
   });
 });
 
+
+const getAllOrders = catchAsync(async (req, res) => {
+  const result = await OrderService.getAllOrdersFromDB();
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Orders fetched successfully',
+    data: result,
+  });
+});
+
+
+
+
+
 export const OrderController = {
   createOrder,
   getRevinue,
+  getAllOrders,
 };

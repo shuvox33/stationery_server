@@ -94,7 +94,14 @@ const getRevinueFromDB = async () => {
   return result;
 };
 
+
+const getAllOrdersFromDB = async () => {
+  const  result = await Order.find().populate('product').populate('user');
+  return result
+};
+
 export const OrderService = {
   createOrderToDB,
   getRevinueFromDB,
+  getAllOrdersFromDB,
 };
