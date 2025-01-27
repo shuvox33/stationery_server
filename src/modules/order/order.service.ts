@@ -1,8 +1,10 @@
-import { Product } from '../product/product.schema';
+import { Product } from './../product/product.schema';
 import { Order } from './order.schema';
 import { IOrder } from './order.model';
 import { Response } from 'express';
 import { User } from '../user/user.model';
+import AppError from '../../error/AppError';
+import { StatusCodes } from 'http-status-codes';
 
 const createOrderToDB = async (
   orderData: IOrder,
@@ -111,14 +113,28 @@ const updateOrderToDB = async (orderId: string, orderData: IOrder) => {
   return result;
 };
 
-
 const deleteOrderFromDB = async (orderId: string) => {
-  const result = await Order.findByIdAndDelete(orderId);
+  const order = await Order.findById(orderId).populate('product');
+
+  if (!order) {
+    throw new AppError('Order not found', StatusCodes.NOT_FOUND);
+  }
+  const product = order.product;
+
+  if (product && typeof product !== 'string') {
+    await Product.findByIdAndUpdate(
+      product._id,
+      {
+        $inc: { quantity: order.quantity },
+        inStock: true,
+      },
+      { new: true },
+    );
+  }
+
+  const result = await order.deleteOne();
   return result;
-}
-
-
-
+};
 
 export const OrderService = {
   createOrderToDB,
@@ -126,5 +142,5 @@ export const OrderService = {
   getAllOrdersFromDB,
   getSingleOrderFromDB,
   updateOrderToDB,
-  deleteOrderFromDB
+  deleteOrderFromDB,
 };

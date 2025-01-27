@@ -2,6 +2,9 @@ import { OrderService } from './order.service';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { StatusCodes } from 'http-status-codes';
+import { Product } from '../product/product.schema';
+import AppError from '../../error/AppError';
+import { Order } from './order.schema';
 
 const createOrder = catchAsync(async (req, res) => {
   const orderData = req.body;
@@ -64,20 +67,17 @@ const updateOrder = catchAsync(async (req, res) => {
   });
 });
 
-
 const deletedOrder = catchAsync(async (req, res) => {
   const { orderId } = req.params;
-  const result = await OrderService.deleteOrderFromDB(orderId);
+  await OrderService.deleteOrderFromDB(orderId);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
     message: 'Order deleted successfully',
     data: {},
-  })
+  });
 });
-
-
 
 export const OrderController = {
   createOrder,
