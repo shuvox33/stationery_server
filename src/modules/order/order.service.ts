@@ -94,14 +94,27 @@ const getRevinueFromDB = async () => {
   return result;
 };
 
-
 const getAllOrdersFromDB = async () => {
-  const  result = await Order.find().populate('product').populate('user');
-  return result
+  const result = await Order.find().populate('product').populate('user');
+  return result;
+};
+
+const getSingleOrderFromDB = async (id: string) => {
+  const result = await Order.findById(id).populate('product').populate('user');
+  return result;
+};
+
+const updateOrderToDB = async (orderId: string, orderData: IOrder) => {
+  const result = await Order.findByIdAndUpdate(orderId, orderData, {
+    new: true,
+  });
+  return result;
 };
 
 export const OrderService = {
   createOrderToDB,
   getRevinueFromDB,
   getAllOrdersFromDB,
+  getSingleOrderFromDB,
+  updateOrderToDB,
 };
