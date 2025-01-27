@@ -19,14 +19,14 @@ const createProduct = catchAsync(async (req, res) => {
   }
 
   // check if product is available or not
-  if (!products?.inStock || products?.quantity < 1) {
-    return sendResponse(res, {
-      statusCode: StatusCodes.BAD_REQUEST,
-      success: false,
-      message: 'Product is not available or insufficient quantity',
-      data: {},
-    });
-  }
+  // if (!products?.inStock || products?.quantity < 1) {
+  //   return sendResponse(res, {
+  //     statusCode: StatusCodes.BAD_REQUEST,
+  //     success: false,
+  //     message: 'Product is not available or insufficient quantity',
+  //     data: {},
+  //   });
+  // }
 
   sendResponse(res, {
     statusCode: StatusCodes.CREATED,

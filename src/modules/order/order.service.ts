@@ -2,12 +2,26 @@ import { Product } from '../product/product.schema';
 import { Order } from './order.schema';
 import { IOrder } from './order.model';
 import { Response } from 'express';
+import { User } from '../user/user.model';
 
-const createOrderToDB = async (orderData: IOrder, res: Response) => {
+const createOrderToDB = async (
+  orderData: IOrder,
+  res: Response,
+  userId: string,
+) => {
   const { email, product, quantity, totalPrice } = orderData;
 
-  const foundProduct = await Product.findById(product);
+  // const userData = await User.findById(user);
+  // console.log(userData);
 
+  if (!userId) {
+    return res.status(404).json({
+      status: 'false',
+      message: 'User not found',
+    });
+  }
+
+  const foundProduct = await Product.findById(product);
   if (!foundProduct) {
     return res.status(404).json({
       status: 'false',
@@ -19,7 +33,7 @@ const createOrderToDB = async (orderData: IOrder, res: Response) => {
   if (!foundProduct?.inStock || foundProduct?.quantity < quantity) {
     return res.status(400).json({
       status: 'false',
-      message: 'Product is not available or insufficient quantity',
+      message: 'Product is not available',
     });
   }
 
@@ -44,12 +58,13 @@ const createOrderToDB = async (orderData: IOrder, res: Response) => {
 
   const order = await Order.create({
     email,
-    product: foundProduct._id,
+    product: { _id: foundProduct?._id, quantity },
+    user: userId,
     quantity,
     totalPrice: finalTotalPrice,
   });
 
-  return order;
+  return (await order.populate('product')).populate('user');
 };
 
 // get total revenue from db :

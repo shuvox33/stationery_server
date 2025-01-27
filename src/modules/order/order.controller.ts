@@ -5,7 +5,8 @@ import { StatusCodes } from 'http-status-codes';
 
 const createOrder = catchAsync(async (req, res) => {
   const orderData = req.body;
-  const result = await OrderService.createOrderToDB(orderData, res);
+  const { userId } = req.user;
+  const result = await OrderService.createOrderToDB(orderData, res, userId);
 
   sendResponse(res, {
     statusCode: StatusCodes.CREATED,

@@ -19,6 +19,10 @@ const orderSchema = new Schema<IOrder>(
       required: true,
       ref: 'Product',
     },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
     quantity: {
       type: Number,
       required: true,
@@ -26,6 +30,11 @@ const orderSchema = new Schema<IOrder>(
     totalPrice: {
       type: Number,
       required: true,
+    },
+    status: {
+      type: String,
+      enum: ['Pending', 'Shipping', 'Delivered'],
+      default: 'Pending',
     },
   },
   { timestamps: true },

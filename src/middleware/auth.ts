@@ -8,12 +8,8 @@ import { TUserRole } from '../modules/user/user.interface';
 import { User } from '../modules/user/user.model';
 
 const auth = (...requiredRoles: TUserRole[]) => {
-  console.log('requiredRoles', requiredRoles);
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const extractedToken = req.headers.authorization;
-
-    const token = extractedToken?.split(' ')[1];
-    // check token :
+    const token = req.headers.authorization;
     if (!token) {
       throw new AppError('You are not authorized', StatusCodes.UNAUTHORIZED);
     }
@@ -22,7 +18,6 @@ const auth = (...requiredRoles: TUserRole[]) => {
     const decoded = jwt.verify(token, config.jwtAccessTokenSecret as string);
 
     const { error, role, email } = decoded as JwtPayload;
-
     if (error) {
       throw new AppError('Invalid credentials', StatusCodes.UNAUTHORIZED);
     }
@@ -38,7 +33,6 @@ const auth = (...requiredRoles: TUserRole[]) => {
     }
 
     req.user = decoded as JwtPayload;
-
     next();
   });
 };
