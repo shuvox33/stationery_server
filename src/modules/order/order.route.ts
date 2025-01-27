@@ -37,4 +37,10 @@ router.put(
   OrderController.updateOrder as Application,
 );
 
+router.delete(
+  '/:orderId',
+  auth(USER_ROLES.admin),
+  OrderController.deletedOrder as Application,
+);
+
 export const OrderRoute = router;

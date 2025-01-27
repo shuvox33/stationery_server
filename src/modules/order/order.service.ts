@@ -111,10 +111,20 @@ const updateOrderToDB = async (orderId: string, orderData: IOrder) => {
   return result;
 };
 
+
+const deleteOrderFromDB = async (orderId: string) => {
+  const result = await Order.findByIdAndDelete(orderId);
+  return result;
+}
+
+
+
+
 export const OrderService = {
   createOrderToDB,
   getRevinueFromDB,
   getAllOrdersFromDB,
   getSingleOrderFromDB,
   updateOrderToDB,
+  deleteOrderFromDB
 };

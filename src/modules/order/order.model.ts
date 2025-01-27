@@ -6,5 +6,5 @@ export type IOrder = {
   user: Types.ObjectId | string;
   quantity: number;
   totalPrice: number;
-  status: 'Pending' | 'Shipping' | 'Delivered';
+  status: 'Pending' | 'Shipping' | 'Delivered' | 'Cancelled';
 };
