@@ -15,10 +15,23 @@ const orderSchema = new Schema<IOrder>(
       },
     },
     product: {
-      type: Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId ,
       required: true,
       ref: 'Product',
     },
+    // products: [
+    //   {
+    //     product: {
+    //       type: Schema.Types.ObjectId,
+    //       ref: 'Product',
+    //       required: true,
+    //     },
+    //     quantity: {
+    //       type: Number,
+    //       required: true,
+    //     },
+    //   },
+    // ],
     user: {
       type: Schema.Types.ObjectId,
       ref: 'User',

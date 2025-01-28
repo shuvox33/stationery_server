@@ -2,19 +2,17 @@ import { Product } from './../product/product.schema';
 import { Order } from './order.schema';
 import { IOrder } from './order.model';
 import { Response } from 'express';
-import { User } from '../user/user.model';
 import AppError from '../../error/AppError';
 import { StatusCodes } from 'http-status-codes';
+import { orderUtils } from './order.utils';
 
 const createOrderToDB = async (
   orderData: IOrder,
   res: Response,
   userId: string,
+  client_ip: string,
 ) => {
   const { email, product, quantity, totalPrice } = orderData;
-
-  // const userData = await User.findById(user);
-  // console.log(userData);
 
   if (!userId) {
     return res.status(404).json({
@@ -66,9 +64,59 @@ const createOrderToDB = async (
     totalPrice: finalTotalPrice,
   });
 
-  return (await order.populate('product')).populate('user');
+  // payment gateway integration
+  const shurjopayPayload = {
+    amount: finalTotalPrice,
+    order_id: order._id,
+    currency: 'BDT',
+    customer_name: 'N/A',
+    customer_email: 'N/A',
+    customer_phone: 'N/A',
+    customer_address: 'N/A',
+    customer_city: 'N/A',
+    client_ip,
+  };
+
+  // makePayment
+  const payment = await orderUtils.makePayment(shurjopayPayload);
+
+  return {
+    order: await order.populate('product'),
+    payment,
+  };
 };
 
+const verifyPayment = async (order_id: string) => {
+  const verifiedPayment = await orderUtils.verifyPaymentAsync(order_id);
+
+  if (verifiedPayment.length) {
+    console.log('verifiedPayment', verifiedPayment);
+    await Order.findOneAndUpdate(
+      {
+        'transaction.id': order_id,
+      },
+      {
+        'transaction.bank_status': verifiedPayment[0].bank_status,
+        'transaction.sp_code': verifiedPayment[0].sp_code,
+        'transaction.sp_message': verifiedPayment[0].sp_message,
+        'transaction.transactionStatus': verifiedPayment[0].transaction_status,
+        'transaction.method': verifiedPayment[0].method,
+        'transaction.date_time': verifiedPayment[0].date_time,
+        status:
+          verifiedPayment[0].bank_status == 'Success'
+            ? 'Paid'
+            : verifiedPayment[0].bank_status == 'Failed'
+              ? 'Pending'
+              : verifiedPayment[0].bank_status == 'Cancel'
+                ? 'Cancelled'
+                : '',
+      },
+      { new: true },
+    );
+  }
+
+  return verifiedPayment;
+};
 // get total revenue from db :
 const getRevinueFromDB = async () => {
   const result = await Order.aggregate([
@@ -121,6 +169,7 @@ const deleteOrderFromDB = async (orderId: string) => {
   }
   const product = order.product;
 
+  // update product quantity and inStock status if order is deleted
   if (product && typeof product !== 'string') {
     await Product.findByIdAndUpdate(
       product._id,
@@ -143,4 +192,5 @@ export const OrderService = {
   getSingleOrderFromDB,
   updateOrderToDB,
   deleteOrderFromDB,
+  verifyPayment,
 };

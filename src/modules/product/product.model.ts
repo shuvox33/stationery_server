@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 export type IProduct = {
   name: string;
   brand: string;
@@ -9,6 +11,7 @@ export type IProduct = {
     | 'Educational'
     | 'Technology';
   model: string;
+  author : Types.ObjectId | string;
   description?: string;
   quantity: number;
   inStock: boolean;

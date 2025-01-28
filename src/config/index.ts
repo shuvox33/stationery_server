@@ -9,4 +9,11 @@ export default {
   nodeEnv: process.env.NODE_ENV,
   jwtAccessTokenSecret: process.env.JWT_ACCESS_TOKEN_SECRET,
   jwtAccessTokenExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN,
+  sp: {
+    sp_endpoint: process.env.SP_ENDPOINT,
+    sp_username: process.env.SP_USERNAME,
+    sp_password: process.env.SP_PASSWORD,
+    sp_prefix: process.env.SP_PREFIX,
+    sp_return_url: process.env.SP_RETURN_URL,
+  },
 };

@@ -36,6 +36,12 @@ const productSchema = new Schema<IProduct>(
       required: true,
       message: 'Category is required',
     },
+    author: {
+      type: String,
+      required: true,
+      ref: 'User',
+      message: 'Author is required',
+    },
     description: {
       type: String,
     },

@@ -1,30 +1,37 @@
-
+import AppError from '../../error/AppError';
+import QueryBuilder from '../builder/Querybuilder';
+import { productSearchableFields } from './product.constant';
 import { IProduct } from './product.model';
 import { Product } from './product.schema';
+import { StatusCodes } from 'http-status-codes';
 
 //TODO-1 : create product ------- :
-const createProductToDB = async (product: IProduct) => {
-  const createdProduct = await Product.create(product);
-  return createdProduct;
+const createProductToDB = async (product: IProduct, userId: string) => {
+  if (!userId) {
+    throw new AppError('User not found', StatusCodes.NOT_FOUND);
+  }
+
+  const createProduct = await Product.create({
+    ...product,
+    author: userId,
+  });
+  return createProduct;
 };
 
-//TODO-2 : get all products by search term ------- :
-const getAllProductsFromDB = async (searchTerm?: string) => {
-  let searchFilter = {};
+const getAllProductsFromDB = async (query: Record<string, unknown>) => {
+  const productQuery = new QueryBuilder(Product.find(), query)
+    .search(productSearchableFields)
+    .filter()
+    .paginate()
+    .fields();
 
-  if (searchTerm) {
-    searchFilter = {
-      $or: [
-        { name: { $regex: searchTerm, $options: 'i' } },
-        { brand: { $regex: searchTerm, $options: 'i' } },
-        { category: { $regex: searchTerm, $options: 'i' } },
-      ],
-    };
-  }else{
-    searchFilter = {};
-  }
-  const result = await Product.find(searchFilter);
-  return result;
+  const result = await productQuery.modelQuery;
+  const meta = await productQuery.countTotal();
+
+  return {
+    result,
+    meta,
+  };
 };
 
 //TODO-3 : get single product by id ------- :

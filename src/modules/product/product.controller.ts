@@ -6,7 +6,8 @@ import { Product } from './product.schema';
 
 const createProduct = catchAsync(async (req, res) => {
   const { ...data } = req.body;
-  const result = await ProductService.createProductToDB(data);
+  const { userId } = req.user;
+  const result = await ProductService.createProductToDB(data, userId);
 
   const products = await Product.findById(result._id);
   if (!products) {
@@ -18,16 +19,6 @@ const createProduct = catchAsync(async (req, res) => {
     });
   }
 
-  // check if product is available or not
-  // if (!products?.inStock || products?.quantity < 1) {
-  //   return sendResponse(res, {
-  //     statusCode: StatusCodes.BAD_REQUEST,
-  //     success: false,
-  //     message: 'Product is not available or insufficient quantity',
-  //     data: {},
-  //   });
-  // }
-
   sendResponse(res, {
     statusCode: StatusCodes.CREATED,
     success: true,
@@ -38,16 +29,16 @@ const createProduct = catchAsync(async (req, res) => {
 
 // get all products by search term  :
 const getAllProducts = catchAsync(async (req, res) => {
-  const { searchTerm } = req.query;
   const result = await ProductService.getAllProductsFromDB(
-    searchTerm as string,
+    req.query 
   );
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
     message: 'Products retrieved successfully',
-    data: result,
+    meta: result.meta,
+    data: result.result,
   });
 });
 

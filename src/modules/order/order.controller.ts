@@ -2,20 +2,47 @@ import { OrderService } from './order.service';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { StatusCodes } from 'http-status-codes';
-import { Product } from '../product/product.schema';
-import AppError from '../../error/AppError';
-import { Order } from './order.schema';
 
 const createOrder = catchAsync(async (req, res) => {
   const orderData = req.body;
   const { userId } = req.user;
-  const result = await OrderService.createOrderToDB(orderData, res, userId);
+  // console.log('userId', req.user);
+  const result = await OrderService.createOrderToDB(
+    orderData,
+    res,
+    userId,
+    req.ip!,
+  );
 
   sendResponse(res, {
     statusCode: StatusCodes.CREATED,
     success: true,
     message: 'Order created successfully',
     data: result,
+  });
+});
+
+// verify payment from shurjopay
+const verifyPayment = catchAsync(async (req, res) => {
+  console.log('req.query', req.query);
+  const { order_id } = req.query;
+
+  // if (!order_id || typeof order_id !== 'string') {
+  //   return sendResponse(res, {
+  //     statusCode: StatusCodes.BAD_REQUEST,
+  //     success: false,
+  //     message: 'Invalid or Order id is missing',
+  //     data: {},
+  //   });
+  // }
+
+  const order = await OrderService.verifyPayment(order_id as string);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Payment verified successfully',
+    data: order,
   });
 });
 
@@ -37,7 +64,7 @@ const getAllOrders = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
-    message: 'Orders fetched successfully',
+    message: 'All Orders successfully',
     data: result,
   });
 });
@@ -86,4 +113,5 @@ export const OrderController = {
   getSingleOrder,
   updateOrder,
   deletedOrder,
+  verifyPayment,
 };

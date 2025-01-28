@@ -43,4 +43,10 @@ router.delete(
   OrderController.deletedOrder as Application,
 );
 
+router.get(
+  '/verify-payment',
+  auth(USER_ROLES.user),
+  OrderController.verifyPayment as Application,
+);
+
 export const OrderRoute = router;
