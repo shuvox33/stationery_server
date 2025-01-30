@@ -5,6 +5,8 @@ import { Response } from 'express';
 import AppError from '../../error/AppError';
 import { StatusCodes } from 'http-status-codes';
 import { orderUtils } from './order.utils';
+import QueryBuilder from '../builder/Querybuilder';
+import { orderSearchableFields } from './order.constant';
 
 const createOrderToDB = async (
   orderData: IOrder,
@@ -58,7 +60,7 @@ const createOrderToDB = async (
 
   const order = await Order.create({
     email,
-    product: { _id: foundProduct?._id, quantity },
+    product: foundProduct._id,
     user: userId,
     quantity,
     totalPrice: finalTotalPrice,
@@ -70,7 +72,7 @@ const createOrderToDB = async (
     order_id: order._id,
     currency: 'BDT',
     customer_name: 'N/A',
-    customer_email: 'N/A',
+    customer_email: order.email,
     customer_phone: 'N/A',
     customer_address: 'N/A',
     customer_city: 'N/A',
@@ -81,16 +83,18 @@ const createOrderToDB = async (
   const payment = await orderUtils.makePayment(shurjopayPayload);
 
   return {
-    order: await order.populate('product'),
+    // order: await order.populate('product'),
+    order,
     payment,
   };
 };
 
 const verifyPayment = async (order_id: string) => {
+  console.log('order_id', order_id);
+
   const verifiedPayment = await orderUtils.verifyPaymentAsync(order_id);
 
   if (verifiedPayment.length) {
-    console.log('verifiedPayment', verifiedPayment);
     await Order.findOneAndUpdate(
       {
         'transaction.id': order_id,
@@ -144,9 +148,21 @@ const getRevinueFromDB = async () => {
   return result;
 };
 
-const getAllOrdersFromDB = async () => {
-  const result = await Order.find().populate('product').populate('user');
-  return result;
+const getAllOrdersFromDB = async (query: any) => {
+  const orderQuery = new QueryBuilder(Order.find(), query)
+    .search(orderSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const result = await orderQuery.modelQuery;
+  const meta = await orderQuery.countTotal();
+
+  return {
+    result,
+    meta,
+  };
 };
 
 const getSingleOrderFromDB = async (id: string) => {
@@ -154,10 +170,26 @@ const getSingleOrderFromDB = async (id: string) => {
   return result;
 };
 
-const updateOrderToDB = async (orderId: string, orderData: IOrder) => {
-  const result = await Order.findByIdAndUpdate(orderId, orderData, {
-    new: true,
-  });
+const updateOrderToDB = async (orderId: string, status: string) => {
+  const order = await Order.findById(orderId);
+
+  if (!order) {
+    throw new AppError('Order not found', StatusCodes.NOT_FOUND);
+  }
+  const product = order.product;
+  if (status === 'Cancelled' && product && typeof product !== 'string') {
+    await Product.findByIdAndUpdate(product._id, {
+      $inc: { quantity: order.quantity },
+      inStock: true,
+    });
+  }
+
+  const result = await Order.findByIdAndUpdate(
+    orderId,
+    { status },
+    { new: true },
+  );
+
   return result;
 };
 

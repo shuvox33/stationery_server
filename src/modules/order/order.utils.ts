@@ -1,7 +1,6 @@
 import Shurjopay, { VerificationResponse } from 'shurjopay';
 import config from '../../config';
-import { StatusCodes } from 'http-status-codes';
-import sendResponse from '../../utils/sendResponse';
+
 
 const shurjopay = new Shurjopay();
 
@@ -36,8 +35,8 @@ const verifyPaymentAsync = (
   return new Promise((resolve, reject) => {
     shurjopay.verifyPayment(
       order_id,
-      (response) => console.log('response', response),
-      (error) => console.log('error', error),
+      (response) => resolve(response),
+      (error) => reject(error),
     );
   });
 };

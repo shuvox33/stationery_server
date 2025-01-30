@@ -38,7 +38,7 @@ const productSchema = new Schema<IProduct>(
     },
     author: {
       type: String,
-      required: true,
+      // required: true,
       ref: 'User',
       message: 'Author is required',
     },
@@ -54,6 +54,7 @@ const productSchema = new Schema<IProduct>(
     inStock: {
       type: Boolean,
       required: true,
+      default : true,
       message: 'In stock is required',
     },
     image: {

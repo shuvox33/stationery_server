@@ -1,3 +1,4 @@
+import { JwtPayload } from 'jsonwebtoken';
 import { TUser } from './user.interface';
 import { User } from './user.model';
 
@@ -11,13 +12,13 @@ const getAllUserFromDB = async () => {
   return allUser;
 };
 
-const getSingleUserFromDB = async (id: string) => {
-  const singleUser = await User.findById(id);
-  return singleUser;
-};
+// const getSingleUserFromDB = async (userId: JwtPayload) => {
+//   const singleUser = await User.findById(userId);
+//   return singleUser;
+// };
 
 export const UserService = {
   createUserToDB,
   getAllUserFromDB,
-  getSingleUserFromDB,
+  // getSingleUserFromDB,
 };

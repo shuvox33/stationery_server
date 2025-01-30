@@ -29,19 +29,21 @@ const getAllUser = catchAsync(async (req, res) => {
   });
 });
 
-const getSingleUser = catchAsync(async (req, res) => {
-  const result = await UserService.getSingleUserFromDB(req.params.id);
+// const getSingleUser = catchAsync(async (req, res) => {
+//   const { userId } = req.user;
+//   console.log('user', req.user);
+//   const result = await UserService.getSingleUserFromDB(userId);
 
-  sendResponse(res, {
-    statusCode: StatusCodes.OK,
-    success: true,
-    message: 'User fetched successfully',
-    data: result,
-  });
-});
+//   sendResponse(res, {
+//     statusCode: StatusCodes.OK,
+//     success: true,
+//     message: 'User get successfully',
+//     data: result,
+//   });
+// });
 
 export const UserControllers = {
   createUser,
   getAllUser,
-  getSingleUser,
+  // getSingleUser,
 };

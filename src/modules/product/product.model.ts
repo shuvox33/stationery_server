@@ -11,7 +11,7 @@ export type IProduct = {
     | 'Educational'
     | 'Technology';
   model: string;
-  author : Types.ObjectId | string;
+  author?: Types.ObjectId | string;
   description?: string;
   quantity: number;
   inStock: boolean;
