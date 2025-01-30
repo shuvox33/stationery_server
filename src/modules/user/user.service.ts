@@ -12,13 +12,19 @@ const getAllUserFromDB = async () => {
   return allUser;
 };
 
-// const getSingleUserFromDB = async (userId: JwtPayload) => {
-//   const singleUser = await User.findById(userId);
-//   return singleUser;
-// };
+const updateUserInDB = async (id: string, isBlocked: boolean) => {
+  const updatedUser = await User.findOneAndUpdate(
+    { _id: id },
+    { isBlocked: true },
+    {
+      new: true,
+    },
+  );
+  return updatedUser;
+};
 
 export const UserService = {
   createUserToDB,
   getAllUserFromDB,
-  // getSingleUserFromDB,
+  updateUserInDB,
 };
