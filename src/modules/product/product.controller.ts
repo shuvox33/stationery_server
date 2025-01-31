@@ -3,20 +3,21 @@ import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { StatusCodes } from 'http-status-codes';
 import { Product } from './product.schema';
+import AppError from '../../error/AppError';
 
 const createProduct = catchAsync(async (req, res) => {
-  const { ...data } = req.body;
   const { userId } = req.user;
-  const result = await ProductService.createProductToDB(data, userId);
+  const result = await ProductService.createProductToDB(
+    {
+      ...JSON.parse(req.body.data),
+      image: req.file?.path,
+    },
+    userId,
+  );
 
   const products = await Product.findById(result._id);
   if (!products) {
-    return sendResponse(res, {
-      statusCode: StatusCodes.NOT_FOUND,
-      success: false,
-      message: 'Product not found',
-      data: {},
-    });
+    throw new AppError('Product not found', StatusCodes.NOT_FOUND);
   }
 
   sendResponse(res, {
@@ -29,9 +30,7 @@ const createProduct = catchAsync(async (req, res) => {
 
 // get all products by search term  :
 const getAllProducts = catchAsync(async (req, res) => {
-  const result = await ProductService.getAllProductsFromDB(
-    req.query 
-  );
+  const result = await ProductService.getAllProductsFromDB(req.query);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
