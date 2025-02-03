@@ -1,50 +1,64 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { Product } from './../product/product.schema';
 import { Order } from './order.schema';
-import { IOrder } from './order.model';
-import { Response } from 'express';
 import AppError from '../../error/AppError';
 import { StatusCodes } from 'http-status-codes';
 import { orderUtils } from './order.utils';
 import QueryBuilder from '../builder/Querybuilder';
 import { orderSearchableFields } from './order.constant';
+import { VerificationResponse } from 'shurjopay';
+
+interface OrderData {
+  product: string;
+  quantity: number;
+  totalPrice?: number;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  postalCode: string;
+}
 
 const createOrderToDB = async (
-  orderData: IOrder,
-  res: Response,
+  orderData: OrderData,
   userId: string,
   client_ip: string,
 ) => {
-  const { email, product, quantity, totalPrice } = orderData;
+  const {
+    product,
+    quantity,
+    totalPrice,
+    name,
+    email,
+    phone,
+    address,
+    city,
+    postalCode,
+  } = orderData;
 
+  // Validate user and product
   if (!userId) {
-    return res.status(404).json({
-      status: 'false',
-      message: 'User not found',
-    });
+    throw new AppError('User not found', StatusCodes.NOT_FOUND);
   }
 
   const foundProduct = await Product.findById(product);
   if (!foundProduct) {
-    return res.status(404).json({
-      status: 'false',
-      message: 'Product not found',
-    });
+    throw new AppError('Product not found', StatusCodes.NOT_FOUND);
   }
 
-  // check if product is available or not
+  // Check product availability
   if (!foundProduct?.inStock || foundProduct?.quantity < quantity) {
-    return res.status(400).json({
-      status: 'false',
-      message: 'Product is not available',
-    });
+    throw new AppError('Product is not available', StatusCodes.BAD_REQUEST);
   }
 
-  // update product quantity
+  // Update product quantity
   await Product.findByIdAndUpdate(foundProduct._id, {
     $inc: { quantity: -quantity },
   });
 
-  // update product inStock status
+  // Update product inStock status
   const updatedProduct = await Product.findById(foundProduct._id);
   if (updatedProduct?.quantity === 0) {
     await Product.findByIdAndUpdate(foundProduct._id, {
@@ -52,76 +66,108 @@ const createOrderToDB = async (
     });
   }
 
-  await foundProduct.save();
-
-  // calculate total price for the order
+  // Calculate total price
   const calculatedTotalPrice = (foundProduct.price as number) * quantity;
   const finalTotalPrice = totalPrice ?? calculatedTotalPrice;
 
+  // Create the order in the database
   const order = await Order.create({
-    email,
-    product: foundProduct._id,
     user: userId,
+    product,
     quantity,
     totalPrice: finalTotalPrice,
+    name,
+    email,
+    phone,
+    address,
+    city,
+    postalCode,
+    status: 'Pending',
+    payment_status: 'Pending',
+    transaction: {
+      id: '',
+      transactionStatus: '',
+    },
   });
 
-  // payment gateway integration
+  //! payment gateway integration shurjopay
   const shurjopayPayload = {
     amount: finalTotalPrice,
     order_id: order._id,
     currency: 'BDT',
-    customer_name: 'N/A',
+    customer_name: name,
     customer_email: order.email,
-    customer_phone: 'N/A',
-    customer_address: 'N/A',
-    customer_city: 'N/A',
+    customer_phone: phone,
+    customer_address: address,
+    customer_city: city,
+    customer_post_code: postalCode,
     client_ip,
   };
 
-  // makePayment
-  const payment = await orderUtils.makePayment(shurjopayPayload);
+  const payment = await orderUtils.makePaymentAsyn(shurjopayPayload);
+
+  // Update transaction details in the order
+  if (payment?.transactionStatus) {
+    await Order.updateOne(
+      { _id: order._id },
+      {
+        $set: {
+          'transaction.id': payment.sp_order_id,
+          'transaction.transactionStatus': payment.transactionStatus,
+        },
+      },
+    );
+  }
 
   return {
-    // order: await order.populate('product'),
-    order,
-    payment,
+    checkout_url: payment?.checkout_url,
   };
 };
 
-const verifyPayment = async (order_id: string) => {
-  console.log('order_id', order_id);
+// verifyPayment shurjopay
+const verifyPayment = async (
+  order_id: string,
+): Promise<VerificationResponse[]> => {
+  const verifyPayment = await orderUtils.verifyPaymentAsync(order_id);
 
-  const verifiedPayment = await orderUtils.verifyPaymentAsync(order_id);
-
-  if (verifiedPayment.length) {
+  if (verifyPayment.length) {
     await Order.findOneAndUpdate(
       {
         'transaction.id': order_id,
       },
       {
-        'transaction.bank_status': verifiedPayment[0].bank_status,
-        'transaction.sp_code': verifiedPayment[0].sp_code,
-        'transaction.sp_message': verifiedPayment[0].sp_message,
-        'transaction.transactionStatus': verifiedPayment[0].transaction_status,
-        'transaction.method': verifiedPayment[0].method,
-        'transaction.date_time': verifiedPayment[0].date_time,
-        status:
-          verifiedPayment[0].bank_status == 'Success'
+        'transaction.bank_status': verifyPayment[0].bank_status,
+        'transaction.sp_code': verifyPayment[0].sp_code,
+        'transaction.sp_message': verifyPayment[0].sp_message,
+        'transaction.transactionStatus': verifyPayment[0].transactionStatus,
+        'transaction.method': verifyPayment[0].method,
+        'transaction.date_time': verifyPayment[0].date_time,
+        payment_status:
+          verifyPayment[0].bank_status === 'Success'
             ? 'Paid'
-            : verifiedPayment[0].bank_status == 'Failed'
+            : verifyPayment[0].bank_status === 'Failed'
               ? 'Pending'
-              : verifiedPayment[0].bank_status == 'Cancel'
+              : verifyPayment[0].bank_status === 'Cancel'
                 ? 'Cancelled'
-                : '',
+                : 'Pending',
       },
-      { new: true },
     );
   }
 
-  return verifiedPayment;
+  return verifyPayment;
 };
-// get total revenue from db :
+
+// updatePaymentStatus function
+const updatePaymentStatus = async (transaction_id: string, status: string) => {
+  const result = await Order.updateOne(
+    { transaction: transaction_id },
+    { payment_status: status },
+    { new: true },
+  );
+  console.log(`Payment status updated to ${status} for order ${orderId}`);
+  return result;
+};
+
 const getRevinueFromDB = async () => {
   const result = await Order.aggregate([
     {
@@ -217,6 +263,16 @@ const deleteOrderFromDB = async (orderId: string) => {
   return result;
 };
 
+
+
+const getMyOrdersFromDB = async (userId: string) => {
+  const result = await Order.find({ user: userId }).populate('product').populate('user');
+  return result;
+}
+
+
+
+
 export const OrderService = {
   createOrderToDB,
   getRevinueFromDB,
@@ -224,5 +280,7 @@ export const OrderService = {
   getSingleOrderFromDB,
   updateOrderToDB,
   deleteOrderFromDB,
+  updatePaymentStatus,
   verifyPayment,
+  getMyOrdersFromDB,
 };

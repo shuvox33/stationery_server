@@ -1,6 +1,5 @@
-import Shurjopay, { VerificationResponse } from 'shurjopay';
+import Shurjopay, { PaymentResponse, VerificationResponse } from 'shurjopay';
 import config from '../../config';
-
 
 const shurjopay = new Shurjopay();
 
@@ -15,7 +14,9 @@ shurjopay.config(
 // console.log('shurjopay ->', shurjopay);
 
 // make it forcefully async
-const makePayment = async (paymetPayload: any) => {
+const makePaymentAsyn = async (
+  paymetPayload: any,
+): Promise<PaymentResponse> => {
   return new Promise((resolve, reject) => {
     shurjopay.makePayment(
       paymetPayload,
@@ -41,4 +42,4 @@ const verifyPaymentAsync = (
   });
 };
 
-export const orderUtils = { makePayment, verifyPaymentAsync };
+export const orderUtils = { makePaymentAsyn, verifyPaymentAsync };

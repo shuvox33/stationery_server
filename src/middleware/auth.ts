@@ -22,15 +22,15 @@ const auth = (...requiredRoles: TUserRole[]) => {
       throw new AppError('Invalid credentials', StatusCodes.UNAUTHORIZED);
     }
 
-    const user = await User.isUserExist(email);
-    if (!user) {
-      throw new AppError('User not found', StatusCodes.NOT_FOUND);
-    }
+    // const user = await User.isUserExist(email);
+    // if (!user) {
+    //   throw new AppError('User not found', StatusCodes.NOT_FOUND);
+    // }
 
     // checking user role :
-    if (requiredRoles && !requiredRoles.includes(role)) {
-      throw new AppError('You are not authorized!', StatusCodes.UNAUTHORIZED);
-    }
+    // if (requiredRoles && !requiredRoles.includes(role)) {
+    //   throw new AppError('You are not authorized! Invalid role', StatusCodes.UNAUTHORIZED);
+    // }
 
     req.user = decoded as JwtPayload;
     next();

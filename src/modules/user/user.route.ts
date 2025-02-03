@@ -13,11 +13,19 @@ router.post(
 
 router.get('/', UserControllers.getAllUser);
 
+router.get('/:id', UserControllers.getSingleUser);
+
 router.put(
   '/:id',
   auth(USER_ROLES.admin),
   //   validateRequest(UserValidation.userValidationSchema),
   UserControllers.updateUserBlock,
+);
+
+router.patch(
+  '/update/:id',
+  auth(USER_ROLES.admin, USER_ROLES.user),
+  UserControllers.updateUserDetails,
 );
 
 export const userRoutes = router;

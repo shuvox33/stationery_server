@@ -25,6 +25,7 @@ router.get(
 router.put(
   '/:productId',
   auth(USER_ROLES.admin),
+  multerUpload.single('image'),
   ProductController.updateProduct as RequestHandler,
 );
 router.delete(

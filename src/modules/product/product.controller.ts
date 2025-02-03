@@ -7,9 +7,20 @@ import AppError from '../../error/AppError';
 
 const createProduct = catchAsync(async (req, res) => {
   const { userId } = req.user;
+
+  let productData;
+  try {
+    if (!req.body.data) {
+      throw new AppError('Missing product data', StatusCodes.BAD_REQUEST);
+    }
+    productData = JSON.parse(req.body.data);
+  } catch (error) {
+    throw new AppError('Invalid product data', StatusCodes.BAD_REQUEST);
+  }
+
   const result = await ProductService.createProductToDB(
     {
-      ...JSON.parse(req.body.data),
+      ...productData,
       image: req.file?.path,
     },
     userId,
@@ -57,8 +68,24 @@ const getSingleProduct = catchAsync(async (req, res) => {
 // update product :
 const updateProduct = catchAsync(async (req, res) => {
   const { productId } = req.params;
-  const data = req.body;
-  const result = await ProductService.updateProductById(productId, data);
+
+  let productData;
+  try {
+    if (!req.body.data) {
+      throw new AppError('Missing product data', StatusCodes.BAD_REQUEST);
+    }
+    productData = JSON.parse(req.body.data);
+  } catch (error) {
+    throw new AppError('Invalid product data', StatusCodes.BAD_REQUEST);
+  }
+
+  // get image path
+  const imagePath = req.file ? req.file.path : productData.image;
+
+  const result = await ProductService.updateProductById(productId, {
+    ...productData,
+    image: imagePath,
+  });
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,

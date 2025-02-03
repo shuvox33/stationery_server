@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 export const OrderSchema = new mongoose.Schema({
   transaction: {
-    id: { type: String, required: true }, // Ensure this is a string
+    id: { type: String, required: true }, 
     bank_status: String,
     sp_code: String,
     sp_message: String,
@@ -10,7 +10,7 @@ export const OrderSchema = new mongoose.Schema({
     method: String,
     date_time: Date,
   },
-  // Other fields...
+  
 });
 
 export const orderSearchableFields = ['product', 'user'];

@@ -8,10 +8,17 @@ import { OrderValidation } from './order.validation';
 const router = Router();
 
 router.post(
-  '/',
-  auth(USER_ROLES.user),
+  '/create-order',
+  auth(USER_ROLES.user, USER_ROLES.admin),
   OrderController.createOrder as Application,
 );
+
+router.get(
+  '/verify',
+  auth(USER_ROLES.admin, USER_ROLES.user),
+  OrderController.verifyPayment as Application,
+);
+
 router.get(
   '/revenue',
   auth(USER_ROLES.admin, USER_ROLES.user),
@@ -43,10 +50,12 @@ router.delete(
   OrderController.deletedOrder as Application,
 );
 
+
 router.get(
-  '/verify-payment',
+  '/my-orders/:id',
   auth(USER_ROLES.user),
-  OrderController.verifyPayment as Application,
-);
+  OrderController.getMyOrders as Application
+)
+
 
 export const OrderRoute = router;

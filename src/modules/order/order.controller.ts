@@ -2,19 +2,12 @@ import { OrderService } from './order.service';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { StatusCodes } from 'http-status-codes';
-import mongoose from 'mongoose';
 
 const createOrder = catchAsync(async (req, res) => {
   const orderData = req.body;
   const { userId } = req.user;
-  // console.log('userId', req.user);
-  const result = await OrderService.createOrderToDB(
-    orderData,
-    res,
-    userId,
-    req.ip!,
-  );
 
+  const result = await OrderService.createOrderToDB(orderData, userId, req.ip!);
   sendResponse(res, {
     statusCode: StatusCodes.CREATED,
     success: true,
@@ -23,21 +16,8 @@ const createOrder = catchAsync(async (req, res) => {
   });
 });
 
-// verify payment from shurjopay
-const verifyPayment = catchAsync(async (req, res): Promise<any> => {
-  console.log('req.query', req.query);
-
-  const order_id = req.query.order_id as string;
-
-  // Validate if order_id is a valid ObjectId
-  if (!mongoose.Types.ObjectId.isValid(order_id)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid Order ID----------->',
-    });
-  }
-
-  const order = await OrderService.verifyPayment(order_id as string);
+const verifyPayment = catchAsync(async (req, res) => {
+  const order = await OrderService.verifyPayment(req.query.order_id as string);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
@@ -46,27 +26,6 @@ const verifyPayment = catchAsync(async (req, res): Promise<any> => {
     data: order,
   });
 });
-
-// const verifyPayment = catchAsync(async (req, res): Promise<any> => {
-//   console.log('req.query', req.query);
-//   console.log('order_id', req.query.order_id);
-
-//   if (!mongoose.Types.ObjectId.isValid(req.query.order_id as string)) {
-//     return res.status(400).json({
-//       success: false,
-//       message: 'Invalid order ID',
-//     });
-//   }
-
-//   const order = await OrderService.verifyPayment(req.query.order_id as string);
-
-//   sendResponse(res, {
-//     statusCode: StatusCodes.OK,
-//     success: true,
-//     message: 'Payment verified successfully',
-//     data: order,
-//   });
-// });
 
 // get total revenue from db :
 const getRevinue = catchAsync(async (req, res) => {
@@ -82,6 +41,7 @@ const getRevinue = catchAsync(async (req, res) => {
 
 const getAllOrders = catchAsync(async (req, res) => {
   const result = await OrderService.getAllOrdersFromDB(req.query);
+  console.log(result);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
@@ -106,7 +66,7 @@ const getSingleOrder = catchAsync(async (req, res) => {
 
 const updateOrder = catchAsync(async (req, res) => {
   const { orderId } = req.params;
-  const {status} = req.body;
+  const { status } = req.body;
   const result = await OrderService.updateOrderToDB(orderId, status);
 
   sendResponse(res, {
@@ -129,6 +89,23 @@ const deletedOrder = catchAsync(async (req, res) => {
   });
 });
 
+
+const getMyOrders = catchAsync(async (req, res) => {
+  const { userId } = req.user;
+  const result = await OrderService.getMyOrdersFromDB(userId);
+
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Your orders received successfully',
+    data: result,
+  });
+});
+
+
+
+
 export const OrderController = {
   createOrder,
   getRevinue,
@@ -137,4 +114,5 @@ export const OrderController = {
   updateOrder,
   deletedOrder,
   verifyPayment,
+  getMyOrders,
 };

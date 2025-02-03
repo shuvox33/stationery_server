@@ -20,7 +20,6 @@ const createUser = catchAsync(async (req, res) => {
 
 const getAllUser = catchAsync(async (req, res) => {
   const result = await UserService.getAllUserFromDB();
-  console.log(result);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
@@ -30,11 +29,22 @@ const getAllUser = catchAsync(async (req, res) => {
   });
 });
 
+const getSingleUser = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await UserService.getSingleUserFromDB(id);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'User fetched successfully',
+    data: result,
+  });
+});
 
 const updateUserBlock = catchAsync(async (req, res) => {
-  console.log(req.params);
+
   const { id } = req.params;
-  // console.log(userId);
+
   const { isBlocked } = req.body;
   console.log(isBlocked);
   const result = await UserService.updateUserInDB(id, isBlocked);
@@ -47,10 +57,23 @@ const updateUserBlock = catchAsync(async (req, res) => {
   });
 });
 
+const updateUserDetails = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const data = req.body;
+  const result = await UserService.updateUserDetails(id, data);
 
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'User details updated successfully',
+    data: result,
+  });
+});
 
 export const UserControllers = {
   createUser,
+  getSingleUser,
   getAllUser,
-  updateUserBlock
+  updateUserBlock,
+  updateUserDetails,
 };

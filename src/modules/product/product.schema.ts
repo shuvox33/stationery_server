@@ -38,7 +38,6 @@ const productSchema = new Schema<IProduct>(
     },
     author: {
       type: String,
-      // required: true,
       ref: 'User',
       message: 'Author is required',
     },
