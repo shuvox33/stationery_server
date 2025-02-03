@@ -90,7 +90,7 @@ const createOrderToDB = async (
     },
   });
 
-  //! payment gateway integration shurjopay
+  // payment gateway integration shurjopay
   const shurjopayPayload = {
     amount: finalTotalPrice,
     order_id: order._id,
