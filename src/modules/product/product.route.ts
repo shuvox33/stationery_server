@@ -19,7 +19,7 @@ router.get(
 );
 router.get(
   '/:productId',
-  auth(USER_ROLES.admin),
+  // auth(USER_ROLES.admin),
   ProductController.getSingleProduct as RequestHandler,
 );
 router.put(
