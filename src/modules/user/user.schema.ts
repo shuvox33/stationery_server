@@ -8,6 +8,7 @@ const userValidationSchema = z.object({
       })
       .min(3)
       .max(30),
+    image: z.string().optional().default(''),
     email: z
       .string({
         required_error: 'email is required ',

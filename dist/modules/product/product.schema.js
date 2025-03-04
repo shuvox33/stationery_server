@@ -36,6 +36,11 @@ const productSchema = new mongoose_1.Schema({
         required: true,
         message: 'Category is required',
     },
+    author: {
+        type: String,
+        ref: 'User',
+        message: 'Author is required',
+    },
     description: {
         type: String,
     },
@@ -48,6 +53,7 @@ const productSchema = new mongoose_1.Schema({
     inStock: {
         type: Boolean,
         required: true,
+        default: true,
         message: 'In stock is required',
     },
     image: {

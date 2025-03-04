@@ -40,6 +40,11 @@ const getSingleProductById = async (id: string) => {
 };
 
 const updateProductById = async (id: string, payload: Partial<IProduct>) => {
+  // update inStock status
+  if (typeof payload.quantity === 'number') {
+    payload.inStock = payload.quantity > 0;
+  }
+
   const updatedProduct = await Product.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,

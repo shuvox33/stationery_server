@@ -10,8 +10,7 @@ export default {
   jwtAccessTokenSecret: process.env.JWT_ACCESS_TOKEN_SECRET,
   jwtAccessTokenExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN,
 
-  font_End_URL: process.env.FONT_END_URL,
-  server_URL: process.env.SERVER_URL,
+  
 
   cloudinary_cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   cloudinary_api_key: process.env.CLOUDINARY_API_KEY,

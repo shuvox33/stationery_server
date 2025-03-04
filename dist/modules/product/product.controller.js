@@ -8,115 +8,98 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductController = void 0;
 const product_service_1 = require("./product.service");
-const createProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
+const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
+const http_status_codes_1 = require("http-status-codes");
+const product_schema_1 = require("./product.schema");
+const AppError_1 = __importDefault(require("../../error/AppError"));
+const createProduct = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const { userId } = req.user;
+    let productData;
     try {
-        const data = __rest(req.body, []);
-        const result = yield product_service_1.ProductService.createProductToDB(data);
-        return res.status(200).json({
-            success: true,
-            message: 'Product created successfully',
-            data: result,
-        });
+        if (!req.body.data) {
+            throw new AppError_1.default('Missing product data', http_status_codes_1.StatusCodes.BAD_REQUEST);
+        }
+        productData = JSON.parse(req.body.data);
     }
     catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Validation failed',
-            error: error,
-        });
+        throw new AppError_1.default('Invalid product data', http_status_codes_1.StatusCodes.BAD_REQUEST);
     }
-});
+    const result = yield product_service_1.ProductService.createProductToDB(Object.assign(Object.assign({}, productData), { image: (_a = req.file) === null || _a === void 0 ? void 0 : _a.path }), userId);
+    const products = yield product_schema_1.Product.findById(result._id);
+    if (!products) {
+        throw new AppError_1.default('Product not found', http_status_codes_1.StatusCodes.NOT_FOUND);
+    }
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_codes_1.StatusCodes.CREATED,
+        success: true,
+        message: 'Product created successfully',
+        data: result,
+    });
+}));
 // get all products by search term  :
-const getAllProducts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { searchTerm } = req.query;
-        const result = yield product_service_1.ProductService.getAllProductsFromDB(searchTerm);
-        return res.status(200).json({
-            status: true,
-            message: 'Products retrieved successfully',
-            data: result,
-        });
-    }
-    catch (error) {
-        res.status(500).json({
-            status: false,
-            message: 'Failed to get products',
-            error: error,
-        });
-    }
-});
+const getAllProducts = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield product_service_1.ProductService.getAllProductsFromDB(req.query);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: 'Products retrieved successfully',
+        meta: result.meta,
+        data: result.result,
+    });
+}));
 // get single product by id :
-const getSingleProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { productId } = req.params;
-        const result = yield product_service_1.ProductService.getSingleProductById(productId);
-        return res.status(200).json({
-            status: 'true',
-            message: 'Product retrieved successfully',
-            data: result,
-        });
-    }
-    catch (error) {
-        res.status(500).json({
-            status: false,
-            message: 'Failed to get product',
-            error: error,
-        });
-    }
-});
+const getSingleProduct = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { productId } = req.params;
+    const result = yield product_service_1.ProductService.getSingleProductById(productId);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: 'Product retrieved successfully',
+        data: result,
+    });
+}));
 // update product :
-const updateProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const updateProduct = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { productId } = req.params;
+    let productData;
     try {
-        const { productId } = req.params;
-        const data = req.body;
-        const result = yield product_service_1.ProductService.updateProductById(productId, data);
-        return res.status(200).json({
-            status: 'true',
-            message: 'Product updated successfully',
-            data: result,
-        });
+        if (!req.body.data) {
+            throw new AppError_1.default('Missing product data', http_status_codes_1.StatusCodes.BAD_REQUEST);
+        }
+        productData = JSON.parse(req.body.data);
     }
     catch (error) {
-        res.status(500).json({
-            status: false,
-            message: 'Failed to update product',
-            error: error,
-        });
+        throw new AppError_1.default('Invalid product data', http_status_codes_1.StatusCodes.BAD_REQUEST);
     }
-});
+    // get image path
+    const imagePath = req.file ? req.file.path : productData.image;
+    const result = yield product_service_1.ProductService.updateProductById(productId, Object.assign(Object.assign({}, productData), { image: imagePath }));
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: 'Product updated successfully',
+        data: result,
+    });
+}));
 // delete product :
-const deletedProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { productId } = req.params;
-        yield product_service_1.ProductService.deleteProductById(productId);
-        return res.status(200).json({
-            status: 'true',
-            message: 'Product deleted successfully',
-            data: {},
-        });
-    }
-    catch (error) {
-        res.status(500).json({
-            status: false,
-            message: 'Failed to delete product',
-            error: error,
-        });
-    }
-});
+const deletedProduct = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { productId } = req.params;
+    yield product_service_1.ProductService.deleteProductById(productId);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: 'Product deleted successfully',
+        data: {},
+    });
+}));
 exports.ProductController = {
     createProduct,
     getAllProducts,

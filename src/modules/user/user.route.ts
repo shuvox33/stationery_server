@@ -12,7 +12,6 @@ router.post(
 );
 
 router.get('/', UserControllers.getAllUser);
-
 router.get('/:id', UserControllers.getSingleUser);
 
 router.put(

@@ -7,6 +7,7 @@ import AppError from '../../error/AppError';
 
 const createProduct = catchAsync(async (req, res) => {
   const { userId } = req.user;
+  console.log( 'this is req.body',req.body);
 
   let productData;
   try {

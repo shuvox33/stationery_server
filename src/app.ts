@@ -1,5 +1,10 @@
 import cors from 'cors';
-import express, { Application, Request, RequestHandler, Response } from 'express';
+import express, {
+  Application,
+  Request,
+  RequestHandler,
+  Response,
+} from 'express';
 import router from './router';
 import cookieParser from 'cookie-parser';
 import globalErrorHandler from './middleware/globalErrorHandler';
@@ -12,7 +17,12 @@ app.use(cookieParser());
 
 //corse setup :
 const corsOptions = {
-  origin: 'http://localhost:5173',
+  origin: [
+    'https://frontend-note-and-nest.vercel.app',
+    'http://localhost:5175',
+    'http://localhost:5173',
+    'http://localhost:5174',
+  ],
   credentials: true,
 };
 
@@ -25,7 +35,7 @@ app.get('/', (req: Request, res: Response) => {
   res.send('This api is working');
 });
 
-app.use(globalErrorHandler as unknown as RequestHandler)
-app.use(notFound as unknown as RequestHandler)
+app.use(globalErrorHandler as unknown as RequestHandler);
+app.use(notFound as unknown as RequestHandler);
 
 export default app;

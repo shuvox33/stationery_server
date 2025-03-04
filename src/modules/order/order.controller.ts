@@ -41,7 +41,7 @@ const getRevinue = catchAsync(async (req, res) => {
 
 const getAllOrders = catchAsync(async (req, res) => {
   const result = await OrderService.getAllOrdersFromDB(req.query);
-  console.log(result);
+  // console.log(result);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,

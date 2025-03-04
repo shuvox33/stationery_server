@@ -8,36 +8,46 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductService = void 0;
+const AppError_1 = __importDefault(require("../../error/AppError"));
+const Querybuilder_1 = __importDefault(require("../builder/Querybuilder"));
+const product_constant_1 = require("./product.constant");
 const product_schema_1 = require("./product.schema");
-//TODO-1 : create product ------- :
-const createProductToDB = (product) => __awaiter(void 0, void 0, void 0, function* () {
-    const createdProduct = yield product_schema_1.Product.create(product);
-    return createdProduct;
-});
-//TODO-2 : get all products by search term ------- :
-const getAllProductsFromDB = (searchTerm) => __awaiter(void 0, void 0, void 0, function* () {
-    let searchFilter = {};
-    if (searchTerm) {
-        searchFilter = {
-            $or: [
-                { name: { $regex: searchTerm, $options: 'i' } },
-                { brand: { $regex: searchTerm, $options: 'i' } },
-                { category: { $regex: searchTerm, $options: 'i' } },
-            ],
-        };
+const http_status_codes_1 = require("http-status-codes");
+const createProductToDB = (product, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!userId) {
+        throw new AppError_1.default('User not found', http_status_codes_1.StatusCodes.NOT_FOUND);
     }
-    const result = yield product_schema_1.Product.find(searchFilter);
-    return result;
+    const createProduct = yield product_schema_1.Product.create(Object.assign(Object.assign({}, product), { author: userId }));
+    return createProduct;
 });
-//TODO-3 : get single product by id ------- :
+const getAllProductsFromDB = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    const productQuery = new Querybuilder_1.default(product_schema_1.Product.find(), query)
+        .search(product_constant_1.productSearchableFields)
+        .filter()
+        .sort()
+        .paginate()
+        .fields();
+    const result = yield productQuery.modelQuery;
+    const meta = yield productQuery.countTotal();
+    return {
+        result,
+        meta,
+    };
+});
 const getSingleProductById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const product = yield product_schema_1.Product.findById(id);
     return product;
 });
-//TODO-4 : update product ------- :
 const updateProductById = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    // update inStock status
+    if (typeof payload.quantity === 'number') {
+        payload.inStock = payload.quantity > 0;
+    }
     const updatedProduct = yield product_schema_1.Product.findByIdAndUpdate(id, payload, {
         new: true,
         runValidators: true,
@@ -45,7 +55,6 @@ const updateProductById = (id, payload) => __awaiter(void 0, void 0, void 0, fun
     });
     return updatedProduct;
 });
-//TODO-5 : delete product :
 const deleteProductById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const deletedProduct = yield product_schema_1.Product.findByIdAndDelete(id);
     return deletedProduct;

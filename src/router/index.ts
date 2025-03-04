@@ -3,6 +3,8 @@ import { userRoutes } from '../modules/user/user.route';
 import { ProductRoute } from '../modules/product/product.route';
 import { OrderRoute } from '../modules/order/order.route';
 import { authRoutes } from '../modules/auth/auth.route';
+import { messageRoute } from '../modules/message/message.route';
+
 
 const router = Router();
 
@@ -22,6 +24,10 @@ const moduleRoutes = [
   {
     path: '/auth',
     route: authRoutes,
+  },
+  {
+    path: '/message',
+    route: messageRoute,
   },
 ];
 

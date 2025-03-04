@@ -6,7 +6,7 @@ import config from '../../config';
 const userSchema = new Schema<TUser, UserModel>(
   {
     name: { type: String, required: [true, 'Name is required'] },
-    imgae: { type: String },
+    image: { type: String, default: 'https://avatar.iran.liara.run/public' },
     email: {
       type: String,
       required: [true, 'Email is required'],

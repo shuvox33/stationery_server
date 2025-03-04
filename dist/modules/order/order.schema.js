@@ -18,9 +18,13 @@ const orderSchema = new mongoose_1.Schema({
         },
     },
     product: {
-        type: Object,
+        type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: 'Product',
+    },
+    user: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'User',
     },
     quantity: {
         type: Number,
@@ -29,6 +33,25 @@ const orderSchema = new mongoose_1.Schema({
     totalPrice: {
         type: Number,
         required: true,
+    },
+    status: {
+        type: String,
+        enum: ['Pending', 'Shipping', 'Delivered', 'Cancelled'],
+        default: 'Pending',
+    },
+    payment_status: {
+        type: String,
+        enum: ['Pending', 'Paid', 'Failed', 'Cancelled'],
+        default: 'Pending',
+    },
+    transaction: {
+        id: String,
+        transactionStatus: String,
+        bank_status: String,
+        sp_code: String,
+        sp_message: String,
+        method: String,
+        date_time: String,
     },
 }, { timestamps: true });
 exports.Order = (0, mongoose_1.model)('Order', orderSchema);
